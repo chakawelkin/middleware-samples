@@ -6,15 +6,20 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class KafkaConsumerAnalysis {
 
+    /**
+     * 指定连接的broker地址
+     */
     public static final String brokerList = "114.67.170.152:9092";
     public static final String topic = "topic-demo";
+    /**
+     * 消费者隶属的消费组名称，默认为""，null会异常
+     */
     public static final String groupId = "group.demo";
     public static final AtomicBoolean isRunning = new AtomicBoolean(true);
 
@@ -33,7 +38,10 @@ public class KafkaConsumerAnalysis {
     public static void main(String[] args) {
         Properties props = initConfig();
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Arrays.asList(topic));
+        //consumer.subscribe(Arrays.asList(topic));
+        //重载方法的ConsumerRebalanceListener -- 用来设置再均衡监听器的
+
+        //consumer.assign(); 该方法可以用来指定订阅主题的特定分区
 
         try {
             while (isRunning.get()) {
