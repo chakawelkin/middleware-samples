@@ -4,9 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 
 import java.time.Duration;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -38,11 +40,45 @@ public class KafkaConsumerAnalysis {
     public static void main(String[] args) {
         Properties props = initConfig();
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        //consumer.subscribe(Arrays.asList(topic));
+
+        msgAssign(consumer);
+    }
+
+    /**
+     * 直接指定订阅某个主题的某些分区
+     */
+    private static void msgAssign(KafkaConsumer<String, String> consumer){
+        TopicPartition tp = new TopicPartition(topic, 0);
+        consumer.assign(Arrays.asList(tp));
+
+        long lastConsumedOffset = -1;//当前消费到的位移
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(1000);
+            if (records.isEmpty()) {
+                break;
+            }
+            List<ConsumerRecord<String, String>> partitionRecords
+                    = records.records(tp);
+            lastConsumedOffset = partitionRecords
+                    .get(partitionRecords.size() - 1).offset();
+            consumer.commitSync();//同步提交消费位移
+        }
+        System.out.println("comsumed offset is " + lastConsumedOffset);
+        OffsetAndMetadata offsetAndMetadata = consumer.committed(tp);
+        System.out.println("commited offset is " + offsetAndMetadata.offset());
+        long posititon = consumer.position(tp);
+        System.out.println("the offset of the next record is " + posititon);
+    }
+
+    /**
+     * 消息订阅式
+     * @param consumer
+     */
+    private static void msgSubscribe(KafkaConsumer<String, String> consumer){
+        consumer.subscribe(Arrays.asList(topic));
         //重载方法的ConsumerRebalanceListener -- 用来设置再均衡监听器的
 
         //consumer.assign(); 该方法可以用来指定订阅主题的特定分区
-
         try {
             while (isRunning.get()) {
                 ConsumerRecords<String, String> records =
