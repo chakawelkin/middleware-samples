@@ -48,7 +48,7 @@ public class KafkaConsumerAnalysis {
      * 直接指定订阅某个主题的某些分区
      */
     private static void msgAssign(KafkaConsumer<String, String> consumer){
-        TopicPartition tp = new TopicPartition(topic, 0);
+        TopicPartition tp = new TopicPartition(topic, 3);
         consumer.assign(Arrays.asList(tp));
 
         long lastConsumedOffset = -1;//当前消费到的位移
@@ -83,6 +83,8 @@ public class KafkaConsumerAnalysis {
             while (isRunning.get()) {
                 ConsumerRecords<String, String> records =
                         consumer.poll(Duration.ofMillis(1000));
+
+                //1.消费所有的partition
                 for (ConsumerRecord<String, String> record : records) {
                     System.out.println("topic = " + record.topic()
                             + ", partition = "+ record.partition()
@@ -91,6 +93,9 @@ public class KafkaConsumerAnalysis {
                             + ", value = " + record.value());
                     //do something to process record.
                 }
+
+                //2.消费指定的partition
+                //records.records(new TopicPartition("",1));
             }
         } catch (Exception e) {
             log.error("occur exception ", e);
