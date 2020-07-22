@@ -1,5 +1,6 @@
 package com.chaka.middleware.kafka;
 
+import com.chaka.middleware.kafka.utils.Constants;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -10,7 +11,6 @@ import java.util.Properties;
 
 public class ConsumerFastStart {
 
-    public static final String brokerList = "114.67.170.152:9092";
     public static final String topic = "topic-demo";
     public static final String groupId = "group.demo";
 
@@ -20,7 +20,7 @@ public class ConsumerFastStart {
                 "org.apache.kafka.common.serialization.StringDeserializer");
         properties.put("value.deserializer",
                 "org.apache.kafka.common.serialization.StringDeserializer");
-        properties.put("bootstrap.servers", brokerList);
+        properties.put("bootstrap.servers", Constants.BROKER_URL_LIST);
         //设置消费组的名称，具体的释义可以参见第3章
         properties.put("group.id", groupId);
         //创建一个消费者客户端实例
