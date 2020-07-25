@@ -1,0 +1,29 @@
+spring:
+  kafka:
+    bootstrap-servers: 192.168.112.78:9092
+    producer:
+      acks: 1 #1代表leader应答
+      retries: 3 #发送失败时重试
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      batch-size: 3
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.chaka.middleware.spring.message
+    listener:
+      missing-topics-fatal: false
+
+#配置日志级别
+logging:
+    level:
+        org:
+          springframework:
+            kafka: ERROR
+          apache:
+            kafka: ERROR
